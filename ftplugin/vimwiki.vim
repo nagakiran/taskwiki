@@ -5,7 +5,7 @@ if version < 704
 endif
 
 " Check presence of the python support
-if ! has("python")
+if ! has("python3")
   echoerr "Taskwiki requires Vim compiled with the Python support."
   finish
 endif
@@ -20,11 +20,11 @@ let s:plugin_path = escape(expand('<sfile>:p:h:h'), '\')
 
 " Run the measure parts first, if desired
 if exists("g:taskwiki_measure_coverage")
-  execute 'pyfile ' . s:plugin_path . '/taskwiki/coverage.py'
+  execute 'py3file ' . s:plugin_path . '/taskwiki/coverage.py'
 endif
 
 " Execute the main body of taskwiki source
-execute 'pyfile ' . s:plugin_path . '/taskwiki/main.py'
+execute 'py3file ' . s:plugin_path . '/taskwiki/main.py'
 
 augroup taskwiki
     autocmd!
@@ -36,53 +36,53 @@ augroup taskwiki
       execute "autocmd BufWinEnter *.".expand('%:e')." silent! loadview"
       execute "autocmd BufWinEnter *.".expand('%:e')." silent! doautocmd SessionLoadPost *.".expand('%:e')
     endif
-    execute "autocmd BufEnter *.".expand('%:e')." :py cache.reset()"
+    execute "autocmd BufEnter *.".expand('%:e')." :py3 cache.reset()"
 augroup END
 
 " Global update commands
-command! -nargs=* TaskWikiBufferSave :py WholeBuffer.update_to_tw()
-command! -nargs=* TaskWikiBufferLoad :py WholeBuffer.update_from_tw()
+command! -nargs=* TaskWikiBufferSave :py3 WholeBuffer.update_to_tw()
+command! -nargs=* TaskWikiBufferLoad :py3 WholeBuffer.update_from_tw()
 
 " Split reports commands
-command! -nargs=* TaskWikiProjects :py SplitProjects(<q-args>).execute()
-command! -nargs=* TaskWikiProjectsSummary :py SplitSummary(<q-args>).execute()
-command! -nargs=* TaskWikiBurndownDaily :py SplitBurndownDaily(<q-args>).execute()
-command! -nargs=* TaskWikiBurndownMonthly :py SplitBurndownMonthly(<q-args>).execute()
-command! -nargs=* TaskWikiBurndownWeekly :py SplitBurndownWeekly(<q-args>).execute()
-command! -nargs=* TaskWikiCalendar :py SplitCalendar(<q-args>).execute()
-command! -nargs=* TaskWikiGhistoryAnnual :py SplitGhistoryAnnual(<q-args>).execute()
-command! -nargs=* TaskWikiGhistoryMonthly :py SplitGhistoryMonthly(<q-args>).execute()
-command! -nargs=* TaskWikiHistoryAnnual :py SplitHistoryAnnual(<q-args>).execute()
-command! -nargs=* TaskWikiHistoryMonthly :py SplitHistoryMonthly(<q-args>).execute()
-command! -nargs=* TaskWikiStats :py SplitStats(<q-args>).execute()
-command! -nargs=* TaskWikiTags :py SplitTags(<q-args>).execute()
+command! -nargs=* TaskWikiProjects :py3 SplitProjects(<q-args>).execute()
+command! -nargs=* TaskWikiProjectsSummary :py3 SplitSummary(<q-args>).execute()
+command! -nargs=* TaskWikiBurndownDaily :py3 SplitBurndownDaily(<q-args>).execute()
+command! -nargs=* TaskWikiBurndownMonthly :py3 SplitBurndownMonthly(<q-args>).execute()
+command! -nargs=* TaskWikiBurndownWeekly :py3 SplitBurndownWeekly(<q-args>).execute()
+command! -nargs=* TaskWikiCalendar :py3 SplitCalendar(<q-args>).execute()
+command! -nargs=* TaskWikiGhistoryAnnual :py3 SplitGhistoryAnnual(<q-args>).execute()
+command! -nargs=* TaskWikiGhistoryMonthly :py3 SplitGhistoryMonthly(<q-args>).execute()
+command! -nargs=* TaskWikiHistoryAnnual :py3 SplitHistoryAnnual(<q-args>).execute()
+command! -nargs=* TaskWikiHistoryMonthly :py3 SplitHistoryMonthly(<q-args>).execute()
+command! -nargs=* TaskWikiStats :py3 SplitStats(<q-args>).execute()
+command! -nargs=* TaskWikiTags :py3 SplitTags(<q-args>).execute()
 
 " Commands that operate on tasks in the buffer
-command! -range TaskWikiInfo :<line1>,<line2>py SelectedTasks().info()
-command! -range TaskWikiEdit :<line1>,<line2>py SelectedTasks().edit()
-command! -range TaskWikiLink :<line1>,<line2>py SelectedTasks().link()
-command! -range TaskWikiGrid :<line1>,<line2>py SelectedTasks().grid()
-command! -range TaskWikiDelete :<line1>,<line2>py SelectedTasks().delete()
-command! -range TaskWikiStart :<line1>,<line2>py SelectedTasks().start()
-command! -range TaskWikiStop :<line1>,<line2>py SelectedTasks().stop()
-command! -range TaskWikiDone :<line1>,<line2>py SelectedTasks().done()
-command! -range -nargs=* TaskWikiSort :<line1>,<line2>py SelectedTasks().sort(<q-args>)
-command! -range -nargs=* TaskWikiMod :<line1>,<line2>py SelectedTasks().modify(<q-args>)
-command! -range -nargs=* TaskWikiAnnotate :<line1>,<line2>py SelectedTasks().annotate(<q-args>)
+command! -range TaskWikiInfo :<line1>,<line2>py3 SelectedTasks().info()
+command! -range TaskWikiEdit :<line1>,<line2>py3 SelectedTasks().edit()
+command! -range TaskWikiLink :<line1>,<line2>py3 SelectedTasks().link()
+command! -range TaskWikiGrid :<line1>,<line2>py3 SelectedTasks().grid()
+command! -range TaskWikiDelete :<line1>,<line2>py3 SelectedTasks().delete()
+command! -range TaskWikiStart :<line1>,<line2>py3 SelectedTasks().start()
+command! -range TaskWikiStop :<line1>,<line2>py3 SelectedTasks().stop()
+command! -range TaskWikiDone :<line1>,<line2>py3 SelectedTasks().done()
+command! -range -nargs=* TaskWikiSort :<line1>,<line2>py3 SelectedTasks().sort(<q-args>)
+command! -range -nargs=* TaskWikiMod :<line1>,<line2>py3 SelectedTasks().modify(<q-args>)
+command! -range -nargs=* TaskWikiAnnotate :<line1>,<line2>py3 SelectedTasks().annotate(<q-args>)
 
 " Interactive commands
-command! -range TaskWikiChooseProject :<line1>,<line2>py ChooseSplitProjects("global").execute()
-command! -range TaskWikiChooseTag :<line1>,<line2>py ChooseSplitTags("global").execute()
+command! -range TaskWikiChooseProject :<line1>,<line2>py3 ChooseSplitProjects("global").execute()
+command! -range TaskWikiChooseTag :<line1>,<line2>py3 ChooseSplitTags("global").execute()
 
 " Meta commands
-command! TaskWikiInspect :py Meta().inspect_viewport()
+command! TaskWikiInspect :py3 Meta().inspect_viewport()
 
 " Disable <CR> as VimwikiFollowLink
 if !hasmapto('<Plug>VimwikiFollowLink')
   nmap <Plug>NoVimwikiFollowLink <Plug>VimwikiFollowLink
 endif
 
-nmap <silent><buffer> <CR> :py Mappings.task_info_or_vimwiki_follow_link()<CR>
+nmap <silent><buffer> <CR> :py3 Mappings.task_info_or_vimwiki_follow_link()<CR>
 
 " Leader-related mappings. Mostly <Leader>t + <first letter of the action>
 nmap <silent><buffer> <Leader>ta :TaskWikiAnnotate<CR>

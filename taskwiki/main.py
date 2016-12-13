@@ -255,8 +255,8 @@ class Meta(object):
                 port.sort,
                 len(port.matching_tasks),
                 len(port.tasks),
-                ', '.join(map(unicode, to_add)),
-                ', '.join(map(unicode, to_del)),
+                ', '.join(map(str, to_add)),
+                ', '.join(map(str, to_del)),
             )
 
             # Show in the split
@@ -390,7 +390,7 @@ class CallbackSplitMixin(object):
 
         # Remap <CR> to calling the callback and wiping the buffer
         vim.command(
-            "nnoremap <silent> <buffer> <enter> :py "
+            "nnoremap <silent> <buffer> <enter> :py3 "
             "callback = pickle.loads("
                 "vim.current.buffer.vars['taskwiki_callback']); "
             "callback.callback(); "

@@ -2,7 +2,7 @@ class ShortUUID(object):
     def __init__(self, value, tw):
         # Extract the UUID from the given object. Support both
         # strings and ShortUUID instances.
-        if type(value) in (str, unicode):
+        if type(value) in (str, str):
             # Use str reprentation of the value, first 8 chars
             self.value = str(value)[:8]
         elif type(value) is ShortUUID:
@@ -34,7 +34,7 @@ class ShortUUID(object):
         """
 
         # Determine the key of the TW instance
-        [key] = [key for key, value in cache.warriors.iteritems()
+        [key] = [key for key, value in cache.warriors.items()
                  if value == self.tw]
         prefix = '{0}:'.format(key) if key is not 'default' else ''
 

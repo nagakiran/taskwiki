@@ -41,8 +41,8 @@ class WarriorStore(object):
     def values(self):
         return self.warriors.values()
 
-    def iteritems(self):
-        return self.warriors.iteritems()
+    def items(self):
+        return self.warriors.items()
 
 
 class NoNoneStore(object):
@@ -82,8 +82,8 @@ class NoNoneStore(object):
     def values(self):
         return self.store.values()
 
-    def iteritems(self):
-        return self.store.iteritems()
+    def items(self):
+        return self.store.items()
 
     def clear(self):
         return self.store.clear()
@@ -124,7 +124,7 @@ class VwtaskStore(LineNumberedKeyedStoreMixin, NoNoneStore):
                 self[index]['line_number'] = index
 
     def get_method(self, line):
-        import vwtask
+        from taskwiki import vwtask
         return vwtask.VimwikiTask.from_line(self.cache, line)
 
 
@@ -152,7 +152,7 @@ class ViewportStore(LineNumberedKeyedStoreMixin, NoNoneStore):
 class LineStore(NoNoneStore):
 
     def __delitem__(self, number):
-        for cls, i in self.store.keys():
+        for cls, i in list(self.store.keys()):
             if i == number:
                 del self.store[(cls, i)]
 
@@ -181,7 +181,7 @@ class LineStore(NoNoneStore):
             if i == position2
         }
 
-        for cls, i in self.store.keys():
+        for cls, i in list(self.store.keys()):
             if i == position1 or i == position2:
                 del self.store[(cls, i)]
 

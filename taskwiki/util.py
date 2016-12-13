@@ -5,12 +5,12 @@ from distutils.version import LooseVersion
 import contextlib
 import pkg_resources
 import os
-import regexp
 import random
 import sys
 import vim  # pylint: disable=F0401
 
 from taskwiki.errors import TaskWikiException
+from taskwiki import regexp
 
 # Detect if command AnsiEsc is available
 ANSI_ESC_AVAILABLE = vim.eval('exists(":AnsiEsc")') == '2'
@@ -294,7 +294,7 @@ def show_in_split(lines, size=None, position="belowright", vertical=False,
     # Remove cursorline in original window if it was this split which set it
     if cursorline_activated_in_window is not None:
         vim.command("au BufLeave,BufDelete,BufWipeout <buffer> "
-                    ":py vim.windows[{0}].options['cursorline']=False"
+                    ":py3 vim.windows[{0}].options['cursorline']=False"
                     .format(cursorline_activated_in_window))
 
     if ANSI_ESC_AVAILABLE:
@@ -371,3 +371,26 @@ def enforce_dependencies(cache):
     if taskwarrior_required_version > taskwarrior_installed_version:
         raise TaskWikiException("Taskwarrior version at least %s is required."
                                 % TASKWARRIOR_VERSION)
+
+def decode_bytes(var):
+    """
+    Data structures obtained from vim under python3 will return bytestrings.
+    Make sure we can handle that.
+    """
+
+    if isinstance(var, bytes):
+        return var.decode()
+
+    if isinstance(var, list):
+        return list([decode_bytes(element) for element in var])
+
+    if isinstance(var, dict) or 'vim.dictionary' in str(type(var)):
+        return  {
+            decode_bytes(key): decode_bytes(value)
+            for key, value in var.items()
+        }
+
+    return var
+
+
+

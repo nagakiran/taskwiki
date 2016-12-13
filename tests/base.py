@@ -29,8 +29,8 @@ class IntegrationTest(object):
 
     def read_buffer(self, start=0, end=1000):
         return self.client.read_buffer(
-            unicode(start+1),
-            unicode(end+1)
+            str(start+1),
+            str(end+1)
             ).splitlines()
 
 
@@ -139,9 +139,9 @@ class IntegrationTest(object):
             return False
 
         # Assert that TW and cache objects exist
-        cache_class = self.client.command('py print(cache.__class__.__name__)')
+        cache_class = self.client.command('py3 print(cache.__class__.__name__)')
         tw_class = self.client.command(
-            'py print(cache.warriors["default"].__class__.__name__)')
+            'py3 print(cache.warriors["default"].__class__.__name__)')
 
         if not soft:
             assert tw_class == 'TaskWarrior'

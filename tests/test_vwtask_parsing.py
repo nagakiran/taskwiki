@@ -26,7 +26,7 @@ class TestParsingVimwikiTask(object):
         assert vwtask['due'] == None
         assert vwtask['indent'] == ''
 
-    def test_simple_with_unicode(self):
+    def test_simple_with_str(self):
         self.cache.buffer[0] = "* [ ] This is täsk description"
         vwtask = self.VimwikiTask.from_line(self.cache, 0)
 
