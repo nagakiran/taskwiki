@@ -38,7 +38,9 @@ GENERIC_TASK = re.compile(''.join([
     '$'    # Enforce match on the whole line
 ]))
 
-DATETIME_FORMAT = "(%Y-%m-%d %H:%M)"
+#ToDo: Let's comment %H:%M for now, need to revisit why it's using DATETIME_FORMAT for display though datetime.time() evaluates to false
+#DATETIME_FORMAT = "(%Y-%m-%d %H:%M)"
+DATETIME_FORMAT = "(%Y-%m-%d)"
 DATE_FORMAT = "(%Y-%m-%d)"
 
 GENERIC_VIEWPORT = re.compile(

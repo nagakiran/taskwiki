@@ -2,7 +2,8 @@
 if exists("g:taskwiki_disable")
   finish
 endif
-
+" syntax off
+finish
 " Detect if conceal feature is available
 let s:conceal = exists("+conceallevel") ? ' conceal': ''
 

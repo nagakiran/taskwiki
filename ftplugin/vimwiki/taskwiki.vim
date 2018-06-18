@@ -69,6 +69,8 @@ execute "command! -nargs=* TaskWikiTags :"            . g:taskwiki_py . "SplitTa
 " Commands that operate on tasks in the buffer
 execute "command! -range TaskWikiInfo :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().info()"
 execute "command! -range TaskWikiEdit :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().edit()"
+execute "command! -range TaskWikiJrnlEdit :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().jrnl_edit()"
+execute "command! -range TaskWikiJrnlFullEdit :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().jrnl_full_edit()"
 execute "command! -range TaskWikiLink :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().link()"
 execute "command! -range TaskWikiGrid :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().grid()"
 execute "command! -range TaskWikiDelete :<line1>,<line2>" . g:taskwiki_py . "SelectedTasks().delete()"
@@ -93,7 +95,7 @@ if !hasmapto('<Plug>VimwikiFollowLink')
   nmap <Plug>NoVimwikiFollowLink <Plug>VimwikiFollowLink
 endif
 
-execute "nnoremap <silent><buffer> <CR> :" . g:taskwiki_py . "Mappings.task_info_or_vimwiki_follow_link()<CR>"
+" execute "nnoremap <silent><buffer> <CR> :" . g:taskwiki_py . "Mappings.task_info_or_vimwiki_follow_link()<CR>"
 
 " Leader-related mappings. Mostly <Leader>t + <first letter of the action>
 nmap <silent><buffer> <Leader>ta :TaskWikiAnnotate<CR>
@@ -106,6 +108,8 @@ nmap <silent><buffer> <Leader>tC :TaskWikiCalendar<CR>
 nmap <silent><buffer> <Leader>td :TaskWikiDone<CR>
 nmap <silent><buffer> <Leader>tD :TaskWikiDelete<CR>
 nmap <silent><buffer> <Leader>te :TaskWikiEdit<CR>
+nmap <silent><buffer> <Leader>tj :TaskWikiJrnlEdit<CR>
+nmap <silent><buffer> <Leader>tn :TaskWikiJrnlFullEdit<CR>
 nmap <silent><buffer> <Leader>tg :TaskWikiGrid<CR>
 nmap <silent><buffer> <Leader>tGm :TaskWikiGhistoryMonthly<CR>
 nmap <silent><buffer> <Leader>tGa :TaskWikiGhistoryAnnual<CR>

@@ -318,6 +318,7 @@ class VimwikiTask(object):
         buffer_data = {key:self[key] for key in self.buffer_keys}
         if self._buffer_data != buffer_data:
             # If so, update the line in vim and saved buffer data
+            # Naga: Task can be there in multiple viewports 
             self.cache.buffer[self['line_number']] = str(self)
             self._buffer_data = buffer_data
 
