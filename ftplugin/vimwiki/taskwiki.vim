@@ -66,6 +66,8 @@ execute "command! -nargs=* TaskWikiTags :"            . g:taskwiki_py . "SplitTa
 " Commands that operate on tasks in the buffer
 execute "command! -range TaskWikiInfo :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().info()"
 execute "command! -range TaskWikiEdit :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().edit()"
+execute "command! -range TaskWikiJrnlEdit :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().jrnl_edit()"
+execute "command! -range TaskWikiJrnlFullEdit :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().jrnl_full_edit()"
 execute "command! -range TaskWikiLink :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().link()"
 execute "command! -range TaskWikiGrid :<line1>,<line2>"   . g:taskwiki_py . "SelectedTasks().grid()"
 execute "command! -range TaskWikiDelete :<line1>,<line2>" . g:taskwiki_py . "SelectedTasks().delete()"
@@ -113,6 +115,8 @@ if !exists('g:taskwiki_suppress_mappings')
         nnoremap <silent><buffer> <LocalLeader>d :TaskWikiDone<CR>
         nnoremap <silent><buffer> <LocalLeader>D :TaskWikiDelete<CR>
         nnoremap <silent><buffer> <LocalLeader>e :TaskWikiEdit<CR>
+        nnoremap <silent><buffer> <Leader>tj :TaskWikiJrnlEdit<CR>
+        nnoremap <silent><buffer> <Leader>tn :TaskWikiJrnlFullEdit<CR>
         nnoremap <silent><buffer> <LocalLeader>g :TaskWikiGrid<CR>
         nnoremap <silent><buffer> <LocalLeader>Gm :TaskWikiGhistoryMonthly<CR>
         nnoremap <silent><buffer> <LocalLeader>Ga :TaskWikiGhistoryAnnual<CR>
