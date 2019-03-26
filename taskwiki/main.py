@@ -113,9 +113,10 @@ class SelectedTasks(object):
             vimwikitask.update_from_task()
             vimwikitask.update_in_buffer()
             print(u"Task \"{0}\" completed.".format(vimwikitask['description']))
+        WholeBuffer.update_from_tw()
 
-        cache().buffer.push()
-        self.save_action('done')
+        # cache().buffer.push()
+        # self.save_action('done')
 
     @errors.pretty_exception_handler
     def info(self):
@@ -140,6 +141,50 @@ class SelectedTasks(object):
             vim.command(command.format(location_override, vimwikitask.uuid))
 
         self.save_action('edit')
+
+    def jrnl_edit(self):
+        # rpdb2.start_embedded_debugger("asdf")
+        for vimwikitask in self.tasks:
+            jrnl_name = ''
+            data_location = vimwikitask.tw.config.get("data.location")
+            if data_location.find('self') > -1:
+              jrnl_name = 'stask'
+            elif data_location.find('viamaan') > -1:
+              jrnl_name = 'vtask'
+            elif data_location.find('hpe') > -1:
+              jrnl_name = 'htask'
+            # Build command template, it is different for neovim and vim
+            command = (
+                #('terminal' if util.NEOVIM else '!') +
+                # ' jrnl {0} @{1} --edit'
+                # ' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - $DESC\\n\\n@{1}\\n$TAGS"; jrnl {0} @{1} --edit'
+                #' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
+                #' Silent jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
+                ' call VimuxRunCommand("jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: {2}  @{1}; jrnl {0} @{1} --edit;exit")'
+            )
+            vim.command(command.format(jrnl_name, vimwikitask.uuid,vimwikitask['description']))
+
+    def jrnl_full_edit(self):
+        # rpdb2.start_embedded_debugger("asdf")
+        for vimwikitask in self.tasks:
+            jrnl_name = ''
+            data_location = vimwikitask.tw.config.get("data.location")
+            if data_location.find('self') > -1:
+              jrnl_name = 'stask'
+            elif data_location.find('viamaan') > -1:
+              jrnl_name = 'vtask'
+            elif data_location.find('hpe') > -1:
+              jrnl_name = 'htask'
+            # Build command template, it is different for neovim and vim
+            command = (
+                #('terminal' if util.NEOVIM else '!') +
+                # ' jrnl {0} @{1} --edit'
+                # ' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - $DESC\\n\\n@{1}\\n$TAGS"; jrnl {0} @{1} --edit'
+                #' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
+                ' Silent jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
+                #' call VimuxRunCommand("jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: {2}  @{1}; jrnl {0} @{1} --edit;exit")'
+            )
+            vim.command(command.format(jrnl_name, vimwikitask.uuid,vimwikitask['description']))
 
     @errors.pretty_exception_handler
     def link(self):
@@ -203,8 +248,9 @@ class SelectedTasks(object):
         if output:
             print(output[-1])
 
-        cache().buffer.push()
-        self.save_action('modify', modstring)
+        #cache().buffer.push()
+        WholeBuffer.update_from_tw()
+        #self.save_action('modify', modstring)
 
     def redo(self):
         """
@@ -228,9 +274,10 @@ class SelectedTasks(object):
             vimwikitask.update_from_task()
             vimwikitask.update_in_buffer()
             print(u"Task \"{0}\" started.".format(vimwikitask['description']))
+        WholeBuffer.update_from_tw()
 
-        cache().buffer.push()
-        self.save_action('start')
+        # cache().buffer.push()
+        # self.save_action('start')
 
     @errors.pretty_exception_handler
     def stop(self):
@@ -245,8 +292,9 @@ class SelectedTasks(object):
             vimwikitask.update_in_buffer()
             print(u"Task \"{0}\" stopped.".format(vimwikitask['description']))
 
-        cache().buffer.push()
-        self.save_action('stop')
+        WholeBuffer.update_from_tw()
+        # cache().buffer.push()
+        # self.save_action('stop')
 
     @errors.pretty_exception_handler
     def toggle(self):
