@@ -19,6 +19,7 @@ from taskwiki import viewport
 from taskwiki import decorators
 from taskwiki import completion
 from taskwiki import preset
+import shlex
 
 
 cache = cache_module.CacheRegistry()
@@ -138,6 +139,9 @@ class SelectedTasks(object):
                 ('terminal' if util.HAS_TERMINAL else '!') +
                 ' task {0} {1} edit'
             )
+            command = (
+                ' call VimuxRunCommand("task {0} {1} edit")'
+            )
             vim.command(command.format(location_override, vimwikitask.uuid))
 
         self.save_action('edit')
@@ -153,6 +157,11 @@ class SelectedTasks(object):
               jrnl_name = 'vtask'
             elif data_location.find('hpe') > -1:
               jrnl_name = 'htask'
+            elif data_location.find('juniper') > -1:
+              jrnl_name = 'jtask'
+            print(u"Jrnl \"{0}\" .".format(jrnl_name))
+            cmd = "jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: -- Task - {2}  @{1}; jrnl {0} @{1} --edit;exit".format(jrnl_name, vimwikitask.uuid,vimwikitask['description'])
+            # print(cmd)
             # Build command template, it is different for neovim and vim
             command = (
                 #('terminal' if util.NEOVIM else '!') +
@@ -160,9 +169,13 @@ class SelectedTasks(object):
                 # ' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - $DESC\\n\\n@{1}\\n$TAGS"; jrnl {0} @{1} --edit'
                 #' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
                 #' Silent jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
-                ' call VimuxRunCommand("jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: {2}  @{1}; jrnl {0} @{1} --edit;exit")'
+                ' call VimuxRunCommand(' + shlex.quote(cmd) + ')'
             )
-            vim.command(command.format(jrnl_name, vimwikitask.uuid,vimwikitask['description']))
+            # print(shlex.quote(vimwikitask['description']))
+            # print(command)
+            vim.command(command)
+            #vim.command(command.format(jrnl_name, vimwikitask.uuid,vimwikitask['description'].replace("#","\\\\#")))
+            # vim.command(command.format(jrnl_name, vimwikitask.uuid,re.sub(r'(#\(\))',r'\\\\1',vimwikitask['description'])))
 
     def jrnl_full_edit(self):
         # rpdb2.start_embedded_debugger("asdf")
@@ -175,13 +188,15 @@ class SelectedTasks(object):
               jrnl_name = 'vtask'
             elif data_location.find('hpe') > -1:
               jrnl_name = 'htask'
+            elif data_location.find('juniper') > -1:
+              jrnl_name = 'jtask'
             # Build command template, it is different for neovim and vim
             command = (
-                #('terminal' if util.NEOVIM else '!') +
+                ('terminal' if util.HAS_TERMINAL else '!') +
                 # ' jrnl {0} @{1} --edit'
                 # ' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - $DESC\\n\\n@{1}\\n$TAGS"; jrnl {0} @{1} --edit'
                 #' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
-                ' Silent jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
+                ' jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: "Task - ' + vimwikitask['description'] + ' @{1}"; jrnl {0} @{1} --edit'
                 #' call VimuxRunCommand("jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: {2}  @{1}; jrnl {0} @{1} --edit;exit")'
             )
             vim.command(command.format(jrnl_name, vimwikitask.uuid,vimwikitask['description']))
