@@ -130,6 +130,7 @@ class SelectedTasks(object):
     @errors.pretty_exception_handler
     def edit(self):
         for vimwikitask in self.tasks:
+            # Will it pick from g:taskwiki_extra_warriors
             alternate_data_location = self.tw.overrides.get('data.location')
             location_override = ('rc.data.location=' + alternate_data_location
                                  if alternate_data_location else '')
@@ -142,7 +143,12 @@ class SelectedTasks(object):
             command = (
                 ' call VimuxRunCommand("task {0} {1} edit")'
             )
-            vim.command(command.format(location_override, vimwikitask.uuid))
+            try:
+                vim.command(command.format(location_override, vimwikitask.uuid))
+                if vim.vvars["shell_error"]:
+                    print(u"Task edit failed")
+            except vim.error:
+                print(u"Task edit failed")
 
         self.save_action('edit')
 
@@ -160,7 +166,10 @@ class SelectedTasks(object):
             elif data_location.find('juniper') > -1:
               jrnl_name = 'jtask'
             print(u"Jrnl \"{0}\" .".format(jrnl_name))
-            cmd = "jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: -- Task - {2}  @{1}; jrnl {0} @{1} --edit;exit".format(jrnl_name, vimwikitask.uuid,vimwikitask['description'])
+            # cmd = "jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: -- Task - {2}  @{1}; jrnl {0} @{1} --edit;exit".format(jrnl_name, vimwikitask.uuid,vimwikitask['description'].replace('&','\\&'))
+            # Using translate with a map such that can add extra mappings (characters that need escape) can be added easily
+            cmd = "jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: -- Task - {2}  @{1}; jrnl {0} @{1} --edit;exit".format(jrnl_name, vimwikitask.uuid,
+                    vimwikitask['description'].translate(str.maketrans({'&':'\\&','(':'\\(',')':'\\)'})))
             # print(cmd)
             # Build command template, it is different for neovim and vim
             command = (
