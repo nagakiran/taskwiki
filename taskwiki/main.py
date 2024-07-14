@@ -169,7 +169,7 @@ class SelectedTasks(object):
             # cmd = "jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: -- Task - {2}  @{1}; jrnl {0} @{1} --edit;exit".format(jrnl_name, vimwikitask.uuid,vimwikitask['description'].replace('&','\\&'))
             # Using translate with a map such that can add extra mappings (characters that need escape) can be added easily
             cmd = "jrnl {0} --tags | grep {1} >/dev/null || jrnl {0} now: -- Task - {2}  @{1}; jrnl {0} @{1} --edit;exit".format(jrnl_name, vimwikitask.uuid,
-                    vimwikitask['description'].translate(str.maketrans({'&':'\\&','(':'\\(',')':'\\)'})))
+                    vimwikitask['description'].translate(str.maketrans({'&':'\\&','(':'\\(',')':'\\)',';':'\\;','>':'\\>','<':'\\<'})))
             # print(cmd)
             # Build command template, it is different for neovim and vim
             command = (
