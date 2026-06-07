@@ -47,8 +47,9 @@ syntax match TaskWikiTaskRecurring containedin=TaskWikiTask contained contains=@
 syntax match TaskWikiTaskWaiting containedin=TaskWikiTask contained contains=@TaskWikiTaskContains /\s*\*\s\[W\]\s[^#]*/
 " TaskWikiTaskOverdue is applied dynamically via matchadd() in Meta().set_proper_colors()
 " The highlight group is defined here so users can override it with :hi TaskWikiTaskOverdue
-highlight default TaskWikiTaskOverdue ctermfg=Red ctermbg=NONE cterm=bold guifg=#FF0000 guibg=NONE gui=bold
+highlight default TaskWikiTaskOverdue ctermfg=Red ctermbg=NONE cterm=NONE guifg=#FF0000 guibg=NONE gui=NONE
 syntax match TaskWikiTaskPriority contained /\( \)\@<=\(!\|!!\|!!!\)\( \)\@=/
+highlight default TaskWikiTaskPriority ctermfg=Red ctermbg=NONE cterm=NONE guifg=#FF4500 guibg=NONE gui=NONE
 syntax cluster TaskWikiTaskContains add=TaskWikiTaskPriority
 
 " Set concealed parts as really concealed in normal mode, and with cursor over

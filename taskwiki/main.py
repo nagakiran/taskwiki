@@ -266,18 +266,16 @@ class SelectedTasks(object):
         # Modify all tasks at once
         output = util.tw_execute_safely(self.tw, uuids + ['mod'] + args)
 
-        # Update the touched tasks in buffer, if needed
-        cache().load_tasks()
-        cache().update_vwtasks_from_tasks()
-        cache().update_vwtasks_in_buffer()
-
         # Output the feedback from TW
         if output:
             print(output[-1])
 
-        #cache().buffer.push()
-        WholeBuffer.update_from_tw()
-        #self.save_action('modify', modstring)
+        for vimwikitask in self.tasks:
+            vimwikitask.task.refresh()
+            vimwikitask.update_from_task()
+            vimwikitask.update_in_buffer()
+        cache().buffer.push()
+        Meta()._apply_overdue_highlights()
 
     def redo(self):
         """
@@ -504,7 +502,6 @@ class Meta(object):
             'TaskWikiTaskRecurring': 'Comment',
             'TaskWikiTaskWaiting': 'Comment',
             'TaskWikiTaskDeleted': 'Error',
-            'TaskWikiTaskPriority': 'Error',
         }
 
         # If tw support is enabled, try to find definition in TW first
@@ -542,6 +539,7 @@ class Meta(object):
         )
 
         now = datetime.now()
+        overdue_lines = []
 
         for line_number, line in enumerate(vim.current.buffer):
             match = re_mod.GENERIC_TASK.match(line)
@@ -568,9 +566,11 @@ class Meta(object):
                 continue
 
             if due < now:
-                # matchadd uses 1-based line numbers; line_number is 0-based
-                vim.eval('matchadd("TaskWikiTaskOverdue", "\\%{0}l")'.format(
-                    line_number + 1))
+                overdue_lines.append(line_number + 1)  # 1-based
+
+        for i in range(0, len(overdue_lines), 8):
+            batch = overdue_lines[i:i + 8]
+            vim.eval('matchaddpos("TaskWikiTaskOverdue", {0})'.format(batch))
 
 
 class Split(object):
