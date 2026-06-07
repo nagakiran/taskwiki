@@ -5,6 +5,7 @@ import os
 import pickle
 import six
 import sys
+from datetime import datetime
 import vim  # pylint: disable=F0401
 
 # Insert the taskwiki on the python path
@@ -45,6 +46,7 @@ class WholeBuffer(object):
         c.update_vwtasks_in_buffer()
         c.evaluate_viewports()
         c.buffer.push()
+        Meta()._apply_overdue_highlights()
 
     @staticmethod
     @errors.pretty_exception_handler
@@ -64,6 +66,7 @@ class WholeBuffer(object):
         c.update_vwtasks_in_buffer()
         c.evaluate_viewports()
         c.buffer.push()
+        Meta()._apply_overdue_highlights()
 
 
 class SelectedTasks(object):
@@ -492,6 +495,7 @@ class Meta(object):
             'TaskWikiTaskDeleted': 'color.deleted',
             'TaskWikiTaskRecurring': 'color.recurring',
             'TaskWikiTaskWaiting': 'color.completed',
+            'TaskWikiTaskOverdue': 'color.overdue',
         }
 
         taskwiki_native_colors = {
@@ -520,6 +524,53 @@ class Meta(object):
         for syntax in taskwiki_native_colors.keys():
             vim.command('hi def link {0} {1}'
                         .format(syntax, taskwiki_native_colors[syntax]))
+
+        # Dynamically highlight overdue task lines using matchadd().
+        # This cannot be done with static syntax rules since we need to
+        # compare the due date against today's date at load time.
+        self._apply_overdue_highlights()
+
+    @errors.pretty_exception_handler
+    def _apply_overdue_highlights(self):
+        from taskwiki import regexp as re_mod
+
+        # Clear any previous overdue match highlights in this window to avoid
+        # stale entries when the buffer is refreshed.
+        vim.eval(
+            'map(filter(getmatches(), \'v:val.group ==# "TaskWikiTaskOverdue"\'), '
+            '\'matchdelete(v:val.id)\')'
+        )
+
+        now = datetime.now()
+
+        for line_number, line in enumerate(vim.current.buffer):
+            match = re_mod.GENERIC_TASK.match(line)
+            if not match:
+                continue
+
+            # Skip completed and deleted tasks
+            completed_mark = match.group('completed')
+            if completed_mark in ('X', 'D'):
+                continue
+
+            due_str = match.group('due')
+            if not due_str:
+                continue
+
+            # Parse the due date (strip surrounding parentheses)
+            due_str = due_str.strip('()')
+            try:
+                if ' ' in due_str:
+                    due = datetime.strptime(due_str, '%Y-%m-%d %H:%M')
+                else:
+                    due = datetime.strptime(due_str, '%Y-%m-%d')
+            except ValueError:
+                continue
+
+            if due < now:
+                # matchadd uses 1-based line numbers; line_number is 0-based
+                vim.eval('matchadd("TaskWikiTaskOverdue", "\\%{0}l")'.format(
+                    line_number + 1))
 
 
 class Split(object):

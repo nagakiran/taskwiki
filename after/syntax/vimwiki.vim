@@ -45,6 +45,9 @@ syntax match TaskWikiTaskCompleted containedin=TaskWikiTask contained contains=@
 syntax match TaskWikiTaskDeleted containedin=TaskWikiTask contained contains=@TaskWikiTaskContains /\s*\*\s*\[D\]\s[^#]*/
 syntax match TaskWikiTaskRecurring containedin=TaskWikiTask contained contains=@TaskWikiTaskContains /\s*\*\s\[R\]\s[^#]*/
 syntax match TaskWikiTaskWaiting containedin=TaskWikiTask contained contains=@TaskWikiTaskContains /\s*\*\s\[W\]\s[^#]*/
+" TaskWikiTaskOverdue is applied dynamically via matchadd() in Meta().set_proper_colors()
+" The highlight group is defined here so users can override it with :hi TaskWikiTaskOverdue
+highlight default TaskWikiTaskOverdue ctermfg=Red ctermbg=NONE cterm=bold guifg=#FF0000 guibg=NONE gui=bold
 syntax match TaskWikiTaskPriority contained /\( \)\@<=\(!\|!!\|!!!\)\( \)\@=/
 syntax cluster TaskWikiTaskContains add=TaskWikiTaskPriority
 
