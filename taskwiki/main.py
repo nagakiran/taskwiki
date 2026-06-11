@@ -46,7 +46,7 @@ class WholeBuffer(object):
         c.update_vwtasks_in_buffer()
         c.evaluate_viewports()
         c.buffer.push()
-        Meta()._apply_overdue_highlights()
+        Meta()._apply_due_highlights()
 
     @staticmethod
     @errors.pretty_exception_handler
@@ -66,7 +66,7 @@ class WholeBuffer(object):
         c.update_vwtasks_in_buffer()
         c.evaluate_viewports()
         c.buffer.push()
-        Meta()._apply_overdue_highlights()
+        Meta()._apply_due_highlights()
 
 
 class SelectedTasks(object):
@@ -117,10 +117,8 @@ class SelectedTasks(object):
             vimwikitask.update_from_task()
             vimwikitask.update_in_buffer()
             print(u"Task \"{0}\" completed.".format(vimwikitask['description']))
-        WholeBuffer.update_from_tw()
-
-        # cache().buffer.push()
-        # self.save_action('done')
+        cache().buffer.push()
+        Meta()._apply_due_highlights()
 
     @errors.pretty_exception_handler
     def info(self):
@@ -275,7 +273,7 @@ class SelectedTasks(object):
             vimwikitask.update_from_task()
             vimwikitask.update_in_buffer()
         cache().buffer.push()
-        Meta()._apply_overdue_highlights()
+        Meta()._apply_due_highlights()
 
     def redo(self):
         """
@@ -299,10 +297,8 @@ class SelectedTasks(object):
             vimwikitask.update_from_task()
             vimwikitask.update_in_buffer()
             print(u"Task \"{0}\" started.".format(vimwikitask['description']))
-        WholeBuffer.update_from_tw()
-
-        # cache().buffer.push()
-        # self.save_action('start')
+        cache().buffer.push()
+        Meta()._apply_due_highlights()
 
     @errors.pretty_exception_handler
     def stop(self):
@@ -316,10 +312,8 @@ class SelectedTasks(object):
             vimwikitask.update_from_task()
             vimwikitask.update_in_buffer()
             print(u"Task \"{0}\" stopped.".format(vimwikitask['description']))
-
-        WholeBuffer.update_from_tw()
-        # cache().buffer.push()
-        # self.save_action('stop')
+        cache().buffer.push()
+        Meta()._apply_due_highlights()
 
     @errors.pretty_exception_handler
     def toggle(self):
@@ -522,55 +516,67 @@ class Meta(object):
             vim.command('hi def link {0} {1}'
                         .format(syntax, taskwiki_native_colors[syntax]))
 
-        # Dynamically highlight overdue task lines using matchadd().
+        # Dynamically highlight due/overdue task lines using matchadd().
         # This cannot be done with static syntax rules since we need to
         # compare the due date against today's date at load time.
-        self._apply_overdue_highlights()
+        self._apply_due_highlights()
 
     @errors.pretty_exception_handler
-    def _apply_overdue_highlights(self):
+    def _apply_due_highlights(self):
         from taskwiki import regexp as re_mod
 
-        # Clear any previous overdue match highlights in this window to avoid
-        # stale entries when the buffer is refreshed.
-        vim.eval(
-            'map(filter(getmatches(), \'v:val.group ==# "TaskWikiTaskOverdue"\'), '
-            '\'matchdelete(v:val.id)\')'
-        )
+        # Clear previous match highlights for all due-proximity groups.
+        for group in ('TaskWikiTaskOverdue', 'TaskWikiTaskUrgent', 'TaskWikiTaskSoon'):
+            vim.eval(
+                'map(filter(getmatches(), \'v:val.group ==# "{0}"\'), '
+                '\'matchdelete(v:val.id)\')'.format(group)
+            )
 
+        urgent_days = int(util.get_var('taskwiki_urgent_days', 3) or 0)
+        soon_days = int(util.get_var('taskwiki_soon_days', 7) or 0)
         now = datetime.now()
+
         overdue_lines = []
+        urgent_lines = []
+        soon_lines = []
 
         for line_number, line in enumerate(vim.current.buffer):
             match = re_mod.GENERIC_TASK.match(line)
             if not match:
                 continue
 
-            # Skip completed and deleted tasks
-            completed_mark = match.group('completed')
-            if completed_mark in ('X', 'D'):
+            if match.group('completed') in ('X', 'D'):
                 continue
 
             due_str = match.group('due')
             if not due_str:
                 continue
 
-            # Parse the due date (strip surrounding parentheses)
             due_str = due_str.strip('()')
             try:
-                if ' ' in due_str:
-                    due = datetime.strptime(due_str, '%Y-%m-%d %H:%M')
-                else:
-                    due = datetime.strptime(due_str, '%Y-%m-%d')
+                fmt = '%Y-%m-%d %H:%M' if ' ' in due_str else '%Y-%m-%d'
+                due = datetime.strptime(due_str, fmt)
             except ValueError:
                 continue
 
+            lnum = line_number + 1  # 1-based
+            delta_days = (due - now).total_seconds() / 86400.0
             if due < now:
-                overdue_lines.append(line_number + 1)  # 1-based
+                overdue_lines.append(lnum)
+            elif urgent_days and delta_days <= urgent_days:
+                urgent_lines.append(lnum)
+            elif soon_days and delta_days <= soon_days:
+                soon_lines.append(lnum)
 
-        for i in range(0, len(overdue_lines), 8):
-            batch = overdue_lines[i:i + 8]
-            vim.eval('matchaddpos("TaskWikiTaskOverdue", {0})'.format(batch))
+        # matchaddpos accepts max 8 positions per call; higher priority wins on same line.
+        for lines, group, priority in [
+            (overdue_lines, 'TaskWikiTaskOverdue', 12),
+            (urgent_lines,  'TaskWikiTaskUrgent',  11),
+            (soon_lines,    'TaskWikiTaskSoon',    10),
+        ]:
+            for i in range(0, len(lines), 8):
+                batch = lines[i:i + 8]
+                vim.eval('matchaddpos("{0}", {1}, {2})'.format(group, batch, priority))
 
 
 class Split(object):

@@ -45,9 +45,13 @@ syntax match TaskWikiTaskCompleted containedin=TaskWikiTask contained contains=@
 syntax match TaskWikiTaskDeleted containedin=TaskWikiTask contained contains=@TaskWikiTaskContains /\s*\*\s*\[D\]\s[^#]*/
 syntax match TaskWikiTaskRecurring containedin=TaskWikiTask contained contains=@TaskWikiTaskContains /\s*\*\s\[R\]\s[^#]*/
 syntax match TaskWikiTaskWaiting containedin=TaskWikiTask contained contains=@TaskWikiTaskContains /\s*\*\s\[W\]\s[^#]*/
-" TaskWikiTaskOverdue is applied dynamically via matchadd() in Meta().set_proper_colors()
-" The highlight group is defined here so users can override it with :hi TaskWikiTaskOverdue
-highlight default TaskWikiTaskOverdue ctermfg=Red ctermbg=NONE cterm=NONE guifg=#FF0000 guibg=NONE gui=NONE
+" TaskWikiTaskOverdue/Urgent/Soon are applied dynamically via matchadd() in Meta().set_proper_colors()
+" The highlight groups are defined here so users can override them with :hi <group>
+highlight default TaskWikiTaskOverdue  ctermfg=Red  ctermbg=NONE cterm=NONE           guifg=#FF0000 guibg=NONE gui=NONE
+highlight default TaskWikiTaskUrgent   ctermfg=214  ctermbg=NONE cterm=NONE           guifg=#FF8700 guibg=NONE gui=NONE
+highlight default TaskWikiTaskSoon     ctermfg=226  ctermbg=NONE cterm=NONE           guifg=#FFFF00 guibg=NONE gui=NONE
+" Strikethrough on completed tasks signals "done — will be removed from viewport on next refresh"
+highlight default TaskWikiTaskCompleted ctermfg=Grey ctermbg=NONE cterm=strikethrough guifg=#808080 guibg=NONE gui=strikethrough
 syntax match TaskWikiTaskPriority contained /\( \)\@<=\(!\|!!\|!!!\)\( \)\@=/
 highlight default TaskWikiTaskPriority ctermfg=Red ctermbg=NONE cterm=NONE guifg=#FF4500 guibg=NONE gui=NONE
 syntax cluster TaskWikiTaskContains add=TaskWikiTaskPriority
