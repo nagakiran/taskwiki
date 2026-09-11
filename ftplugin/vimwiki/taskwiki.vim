@@ -98,6 +98,23 @@ execute "command! -buffer -range TaskWikiChooseTag :<line1>,<line2>"         . g
 " Meta commands
 execute "command! -buffer TaskWikiInspect :" . g:taskwiki_py . "Meta().inspect_viewport()"
 
+" Hover context: show extra task fields as virtual text on the cursor line.
+" Neovim only, since it relies on extmarks.
+if has('nvim') && !exists('g:taskwiki_disable_hover')
+  execute "command! -buffer TaskWikiHoverContext :" . g:taskwiki_py . "hover.HoverContext(cache.load_current()).update()"
+  execute "command! -buffer TaskWikiHoverClear :"   . g:taskwiki_py . "hover.HoverContext(cache.load_current()).clear()"
+  command! -buffer TaskWikiHoverToggle call taskwiki#HoverToggle()
+
+  augroup taskwiki_hover
+      autocmd! * <buffer>
+      autocmd CursorMoved <buffer> call taskwiki#HoverContext()
+      autocmd BufEnter,WinEnter,InsertLeave <buffer> call taskwiki#HoverContext()
+      " Every keystroke bumps b:changedtick, so hide the display while typing
+      " rather than re-rendering it on each one.
+      autocmd BufLeave,WinLeave,InsertEnter <buffer> call taskwiki#HoverClear()
+  augroup END
+endif
+
 " Disable <CR> as VimwikiFollowLink
 if !hasmapto('<Plug>VimwikiFollowLink')
   nmap <Plug>NoVimwikiFollowLink <Plug>VimwikiFollowLink

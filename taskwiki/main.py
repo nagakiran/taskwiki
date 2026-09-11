@@ -20,6 +20,7 @@ from taskwiki import viewport
 from taskwiki import decorators
 from taskwiki import completion
 from taskwiki import preset
+from taskwiki import hover
 import shlex
 
 
@@ -47,6 +48,7 @@ class WholeBuffer(object):
         c.evaluate_viewports()
         c.buffer.push()
         Meta()._apply_due_highlights()
+        Meta()._refresh_hover()
 
     @staticmethod
     @errors.pretty_exception_handler
@@ -67,6 +69,7 @@ class WholeBuffer(object):
         c.evaluate_viewports()
         c.buffer.push()
         Meta()._apply_due_highlights()
+        Meta()._refresh_hover()
 
 
 class SelectedTasks(object):
@@ -119,6 +122,7 @@ class SelectedTasks(object):
             print(u"Task \"{0}\" completed.".format(vimwikitask['description']))
         cache().buffer.push()
         Meta()._apply_due_highlights()
+        Meta()._refresh_hover()
 
     @errors.pretty_exception_handler
     def info(self):
@@ -274,6 +278,7 @@ class SelectedTasks(object):
             vimwikitask.update_in_buffer()
         cache().buffer.push()
         Meta()._apply_due_highlights()
+        Meta()._refresh_hover()
 
     def redo(self):
         """
@@ -299,6 +304,7 @@ class SelectedTasks(object):
             print(u"Task \"{0}\" started.".format(vimwikitask['description']))
         cache().buffer.push()
         Meta()._apply_due_highlights()
+        Meta()._refresh_hover()
 
     @errors.pretty_exception_handler
     def stop(self):
@@ -314,6 +320,7 @@ class SelectedTasks(object):
             print(u"Task \"{0}\" stopped.".format(vimwikitask['description']))
         cache().buffer.push()
         Meta()._apply_due_highlights()
+        Meta()._refresh_hover()
 
     @errors.pretty_exception_handler
     def toggle(self):
@@ -520,6 +527,16 @@ class Meta(object):
         # This cannot be done with static syntax rules since we need to
         # compare the due date against today's date at load time.
         self._apply_due_highlights()
+        self._refresh_hover()
+
+    @errors.pretty_exception_handler
+    def _refresh_hover(self):
+        # The hover display is driven by CursorMoved, whose VimL gate skips
+        # the call when neither the cursor line nor b:changedtick moved. That
+        # is exactly the situation right after a reload - the cursor may have
+        # been restored onto a task line before the cache was warm - so the
+        # display has to be redrawn explicitly here.
+        hover.HoverContext(cache()).update()
 
     @errors.pretty_exception_handler
     def _apply_due_highlights(self):

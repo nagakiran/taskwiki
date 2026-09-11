@@ -66,3 +66,39 @@ function! taskwiki#CompleteOmni(findstart, base) abort
     endif
   endif
 endfunction
+
+" Hover context gate. CursorMoved fires on every horizontal motion, so skip
+" the python3 round trip unless the cursor line or the buffer actually changed.
+function! taskwiki#HoverContext() abort
+  if !exists(':TaskWikiHoverContext')
+    return
+  endif
+
+  let l:state = line('.') . ':' . b:changedtick
+  if get(b:, 'taskwiki_hover_state', '') ==# l:state
+    return
+  endif
+  let b:taskwiki_hover_state = l:state
+
+  TaskWikiHoverContext
+endfunction
+
+" Clearing also resets the gate, so re-entering the window re-renders even
+" though the cursor has not moved.
+function! taskwiki#HoverClear() abort
+  if !exists(':TaskWikiHoverClear')
+    return
+  endif
+
+  let b:taskwiki_hover_state = ''
+  TaskWikiHoverClear
+endfunction
+
+function! taskwiki#HoverToggle() abort
+  let b:taskwiki_hover_disabled = !get(b:, 'taskwiki_hover_disabled', 0)
+  let b:taskwiki_hover_state = ''
+  call taskwiki#HoverContext()
+  echo b:taskwiki_hover_disabled
+        \ ? 'TaskWiki: hover context off'
+        \ : 'TaskWiki: hover context on'
+endfunction

@@ -673,6 +673,10 @@ constructs.
     Opens a split window with details of viewport under the cursor. To
     close the split, use "q" or <CR>.
 
+*:TaskWikiHoverToggle*
+    Turns the hover context display (see |taskwiki_hover_fields|) on or off
+    for the current buffer, without touching the global configuration.
+
 =============================================================================
 8. SETTINGS						  *taskwiki-settings*
 
@@ -739,6 +743,43 @@ constructs.
 *taskwiki_disable_concealcursor*
     If set to any non-empty value (such as "yes"), taskwiki will not conceal
     characters on the cursor line in normal mode via `concealcursor=nc`.
+
+*taskwiki_hover_fields*
+    A list of extra Taskwarrior fields shown for the task under the cursor.
+    They are rendered as Neovim virtual text at the end of the cursor line
+    only, so the wiki file on disk is never modified. Requires Neovim; in
+    plain Vim the display is silently skipped.
+
+    Defaults to ['project', 'tags', 'due', 'urgency', 'uuid']. Set it to an
+    empty list to disable the display.
+
+    Supported fields:
+      project      the task project, rendered as ~project
+      tags         all task tags, rendered as +tag1 +tag2
+      due          due date, see |taskwiki_hover_due_format|
+      scheduled    scheduled date, same format as due
+      urgency      Taskwarrior urgency score, rendered as urg:12.3
+      uuid         the short uuid, rendered as #a1b2c3d4
+      status       task status, rendered as status:waiting
+      annotations  number of annotations, rendered as notes:3
+      depends      number of dependencies, rendered as dep:2
+
+    Fields that are unset on a task are omitted. Unrecognised field names are
+    ignored.
+
+    Example:
+    let g:taskwiki_hover_fields=['project', 'tags']
+
+*taskwiki_hover_due_format*
+    The |strftime()| format used for the "due" and "scheduled" hover fields.
+    Defaults to '%Y-%m-%d', i.e. the date without the time component.
+
+    Example:
+    let g:taskwiki_hover_due_format='%Y-%m-%d %H:%M'
+
+*taskwiki_disable_hover*
+    If set to any non-empty value (such as "yes"), taskwiki will not set up
+    the hover context display at all.
 
 *taskwiki_disable*
     Setting any non-empty value for this variable will disable taskwiki.

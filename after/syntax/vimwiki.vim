@@ -56,6 +56,17 @@ syntax match TaskWikiTaskPriority contained /\( \)\@<=\(!\|!!\|!!!\)\( \)\@=/
 highlight default TaskWikiTaskPriority ctermfg=Red ctermbg=NONE cterm=NONE guifg=#FF4500 guibg=NONE gui=NONE
 syntax cluster TaskWikiTaskContains add=TaskWikiTaskPriority
 
+" Hover context groups. Applied as Neovim virtual text by hover.HoverContext,
+" never to real buffer text. Deliberately only 'highlight default link' here so
+" :hi <group> in a colorscheme keeps winning.
+highlight default link TaskWikiHoverProject     Identifier
+highlight default link TaskWikiHoverTags        Type
+highlight default link TaskWikiHoverDue         Constant
+highlight default link TaskWikiHoverUrgency     Number
+highlight default link TaskWikiHoverUuid        Comment
+highlight default link TaskWikiHoverStatus      Comment
+highlight default link TaskWikiHoverAnnotations Comment
+
 " Set concealed parts as really concealed in normal mode, and with cursor over
 " (unless disabled by user)
 if !exists('g:taskwiki_disable_concealcursor')
